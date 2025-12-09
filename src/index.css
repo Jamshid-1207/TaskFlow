@@ -1,3 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* УБИРАЕМ ИКОНКУ КАЛЕНДАРЯ */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  display: none;
+}
+
+/* УБИРАЕМ ИКОНКИ УВЕЛИЧЕНИЯ / УМЕНЬШЕНИЯ В TIME */
+input[type="time"]::-webkit-inner-spin-button,
+input[type="time"]::-webkit-clear-button {
+  display: none;
+}
+
+/* УБИРАЕМ CLOCK ICON В TIME */
+input[type="time"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  display: none;
+}
