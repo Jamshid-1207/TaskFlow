@@ -130,7 +130,7 @@ export const FilterPanel = ({
                 <span className="font-semibold text-red-600 ml-2">
                   {stats.overdue}
                 </span>
-                <span className="text-red-600 ml-1">просрочено</span>
+                <span className="text-red-600 ml-2">просрочено</span>
               </>
             )}
           </div>
