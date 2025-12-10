@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useCallback, useState, useEffect } from "react";
 import { useLocalStorage } from "./useLocalStorage";
 import { generateId, isOverdue } from "../utils/helpers";
@@ -12,7 +13,6 @@ export const useTodos = () => {
   const [assignedFilter, setAssignedFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Добавление задачи
   const addTodo = useCallback(
     (text, category, priority, assignedTo, deadline) => {
       const newTodo = {
@@ -26,13 +26,10 @@ export const useTodos = () => {
         deadline: deadline ? new Date(deadline) : null,
         notified: false,
       };
-
       setTodos((prev) => [newTodo, ...prev]);
     },
     [setTodos]
   );
-
-  // Удаление задачи
   const deleteTodo = useCallback(
     (id) => {
       setTodos((prev) => prev.filter((todo) => todo.id !== id));
@@ -40,7 +37,6 @@ export const useTodos = () => {
     [setTodos]
   );
 
-  // Переключение статуса
   const toggleTodo = useCallback(
     (id) => {
       setTodos((prev) =>
@@ -52,7 +48,6 @@ export const useTodos = () => {
     [setTodos]
   );
 
-  // Редактирование задачи
   const editTodo = useCallback(
     (id, updates) => {
       setTodos((prev) =>
@@ -62,48 +57,44 @@ export const useTodos = () => {
     [setTodos]
   );
 
-  // Очистка выполненных
   const clearCompleted = useCallback(() => {
     setTodos((prev) => prev.filter((todo) => !todo.completed));
   }, [setTodos]);
 
-  // Получение уникальных ответственных
   const getAssignees = useCallback(() => {
     const assignees = todos.map((todo) => todo.assignedTo);
     const uniqueAssignees = [...new Set(assignees)];
     return [...INITIAL_ASSIGNEES, ...uniqueAssignees];
   }, [todos]);
 
-  // Фильтрация задач
-  const filteredTodos = todos.filter((todo) => {
-    // По статусу
-    if (filter === "active" && todo.completed) return false;
-    if (filter === "completed" && !todo.completed) return false;
+  const filteredTodos = useMemo(() => {
+    return todos.filter((todo) => {
+      if (filter === "active" && todo.completed) return false;
+      if (filter === "completed" && !todo.completed) return false;
+      if (priorityFilter !== "all" && todo.priority !== priorityFilter)
+        return false;
+      if (categoryFilter !== "all" && todo.category !== categoryFilter)
+        return false;
+      if (assignedFilter !== "all" && todo.assignedTo !== assignedFilter)
+        return false;
+      if (
+        searchQuery &&
+        !todo.text.toLowerCase().includes(searchQuery.toLowerCase())
+      ) {
+        return false;
+      }
 
-    // По приоритету
-    if (priorityFilter !== "all" && todo.priority !== priorityFilter)
-      return false;
+      return true;
+    });
+  }, [
+    todos,
+    filter,
+    priorityFilter,
+    categoryFilter,
+    assignedFilter,
+    searchQuery,
+  ]);
 
-    // По категории
-    if (categoryFilter !== "all" && todo.category !== categoryFilter)
-      return false;
-
-    // По ответственному
-    if (assignedFilter !== "all" && todo.assignedTo !== assignedFilter)
-      return false;
-
-    // Поиск
-    if (
-      searchQuery &&
-      !todo.text.toLowerCase().includes(searchQuery.toLowerCase())
-    ) {
-      return false;
-    }
-
-    return true;
-  });
-
-  // Получение просроченных задач
   const getOverdueTodos = useCallback(() => {
     return todos.filter(
       (todo) =>
@@ -114,7 +105,6 @@ export const useTodos = () => {
     );
   }, [todos]);
 
-  // Отметить как уведомленное
   const markAsNotified = useCallback(
     (id) => {
       setTodos((prev) =>
@@ -126,10 +116,8 @@ export const useTodos = () => {
     [setTodos]
   );
 
-  // Используем хук проверки дедлайнов
   useDeadlineCheck(todos, markAsNotified);
 
-  // Статистика
   const stats = {
     total: todos.length,
     completed: todos.filter((todo) => todo.completed).length,

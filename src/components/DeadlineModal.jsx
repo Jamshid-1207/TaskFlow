@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useLineModal } from "../hooks/useLineModal";
 import { X, AlertTriangle, CheckCircle, Calendar } from "lucide-react";
 import { formatDate } from "../utils/helpers";
 
@@ -7,35 +7,14 @@ export const DeadlineModal = ({
   onMarkAsNotified,
   onToggleTodo,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [visibleTodos, setVisibleTodos] = useState([]);
-
-  useEffect(() => {
-    if (overdueTodos.length > 0) {
-      setVisibleTodos(overdueTodos);
-      setIsOpen(true);
-    }
-  }, [overdueTodos]);
-
-  const handleClose = () => {
-    // Помечаем все как уведомленные
-    visibleTodos.forEach((todo) => {
-      onMarkAsNotified(todo.id);
+  const { isOpen, visibleTodos, handleClose, handleCompleteTask } =
+    useLineModal({
+      overdueTodos,
+      onMarkAsNotified,
+      onToggleTodo,
     });
-    setIsOpen(false);
-  };
-
-  const handleCompleteTask = (todoId) => {
-    onToggleTodo(todoId);
-    setVisibleTodos((prev) => prev.filter((todo) => todo.id !== todoId));
-
-    if (visibleTodos.length === 1) {
-      handleClose();
-    }
-  };
 
   if (!isOpen || visibleTodos.length === 0) return null;
-
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Overlay */}

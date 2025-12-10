@@ -8,8 +8,16 @@ import {
 import { CATEGORIES, PRIORITIES } from "../utils/constants";
 
 export const StatsPanel = ({ stats }) => {
+  if (!stats) return null;
+
+  // Вычисляем total, если не передано
+  const total =
+    stats.total !== undefined
+      ? stats.total
+      : stats.completed + stats.active + stats.overdue;
+
   const progressPercentage =
-    stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
+    total > 0 ? Math.round((stats.completed / total) * 100) : 0;
 
   return (
     <div className="bg-white rounded-lg shadow-md p-3 mb-6">
@@ -23,9 +31,8 @@ export const StatsPanel = ({ stats }) => {
         {/* Всего задач */}
         <div className="bg-blue-50 rounded-lg p-2 flex flex-wrap justify-between items-center w-full">
           <span className="text-gray-700 text-sm font-medium">Всего задач</span>
-
           <span className="px-2 py-1 text-sm bg-blue-600 text-white rounded-md font-semibold">
-            {stats.total}
+            {total}
           </span>
         </div>
 
@@ -37,9 +44,8 @@ export const StatsPanel = ({ stats }) => {
             </span>
             <CheckCircle size={18} className="text-green-600" />
           </div>
-
           <span className="px-2 py-1 text-sm bg-green-600 text-white rounded-md font-semibold">
-            {stats.completed || "0"}
+            {stats.completed || 0}
           </span>
         </div>
 
@@ -51,9 +57,8 @@ export const StatsPanel = ({ stats }) => {
             </span>
             <Clock size={18} className="text-yellow-600" />
           </div>
-
           <span className="px-2 py-1 text-sm bg-yellow-600 text-white rounded-md font-semibold">
-            {stats.active}
+            {stats.active || 0}
           </span>
         </div>
 
@@ -65,9 +70,8 @@ export const StatsPanel = ({ stats }) => {
             </span>
             <AlertCircle size={18} className="text-red-600" />
           </div>
-
           <span className="px-2 py-1 text-sm bg-red-600 text-white rounded-md font-semibold">
-            {stats.overdue}
+            {stats.overdue || 0}
           </span>
         </div>
       </div>
@@ -85,7 +89,8 @@ export const StatsPanel = ({ stats }) => {
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div
             className="bg-green-500 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${progressPercentage}%` }}></div>
+            style={{ width: `${progressPercentage}%` }}
+          />
         </div>
       </div>
 
@@ -98,33 +103,26 @@ export const StatsPanel = ({ stats }) => {
             <h3 className="font-medium text-gray-800">По категориям</h3>
           </div>
           <div className="space-y-3">
-            {stats.byCategory.map((item) => {
-              if (item.count === 0) return null;
-
-              const category = CATEGORIES.find((c) => c.name === item.name);
+            {stats.byCategory?.map((item) => {
+              if (!item || item.count === 0) return null;
+              const category = CATEGORIES.find((c) => c.id === item.id);
               return (
                 <div
-                  key={item.name}
+                  key={item.id}
                   className="flex items-center justify-between gap-2">
-                  {/* Левый текст */}
                   <div className="flex items-center gap-1 min-w-0">
                     <span
                       style={{ color: category?.color }}
                       className="whitespace-nowrap text-sm font-medium">
-                      {item.name.split(" ")[0]}
-                    </span>
-                    <span className="text-sm text-gray-700 whitespace-nowrap">
-                      {item.name.split(" ")[1]}
+                      {item.name}
                     </span>
                   </div>
-
-                  {/* Progress + число */}
                   <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
                     <div className="bg-gray-200 rounded-full h-2 flex-1 max-w-[100px]">
                       <div
                         className="h-2 rounded-full"
                         style={{
-                          width: `${(item.count / stats.total) * 100}%`,
+                          width: `${(item.count / total) * 100}%`,
                           backgroundColor: category?.color,
                         }}
                       />
@@ -146,33 +144,26 @@ export const StatsPanel = ({ stats }) => {
             <h3 className="font-medium text-gray-800">По приоритетам</h3>
           </div>
           <div className="space-y-3">
-            {stats.byPriority.map((item) => {
-              if (item.count === 0) return null;
-
-              const priority = PRIORITIES.find((p) => p.name === item.name);
+            {stats.byPriority?.map((item) => {
+              if (!item || item.count === 0) return null;
+              const priority = PRIORITIES.find((p) => p.id === item.id);
               return (
                 <div
-                  key={item.name}
+                  key={item.id}
                   className="flex items-center justify-between gap-2">
-                  {/* Левый текст */}
                   <div className="flex items-center gap-1 min-w-0">
                     <span
                       style={{ color: priority?.color }}
                       className="whitespace-nowrap text-sm font-medium">
-                      {item.name.split(" ")[0]}
-                    </span>
-                    <span className="text-sm text-gray-700 whitespace-nowrap">
-                      {item.name.split(" ")[1]}
+                      {item.name}
                     </span>
                   </div>
-
-                  {/* Progress + число */}
                   <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
                     <div className="bg-gray-200 rounded-full h-2 flex-1 max-w-[100px]">
                       <div
                         className="h-2 rounded-full"
                         style={{
-                          width: `${(item.count / stats.total) * 100}%`,
+                          width: `${(item.count / total) * 100}%`,
                           backgroundColor: priority?.color,
                         }}
                       />
